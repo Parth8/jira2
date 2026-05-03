@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jira 2.0 — Case Study Prototype</title>
+  <meta name="description" content="Interactive prototype demonstrating Jira's current state vs an AI-native reimagining">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/jira-today.css">
+  <link rel="stylesheet" href="styles/jira-2-0.css">
+
+  <!-- Chart.js for dashboards -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- App container -->
+  <div id="app-root" class="app-container"></div>
+
+  <!-- Scripts (order matters) -->
+  <script src="scripts/data.js"></script>
+  <script src="scripts/state.js"></script>
+  <script src="scripts/jira-today.js"></script>
+  <script src="scripts/jira-2-0.js"></script>
+  <script src="scripts/router.js"></script>
+
+</body>
+</html>
