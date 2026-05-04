@@ -16,7 +16,7 @@ const JiraToday = {
           </main>
         </div>
         <div class="jt-footer">
-          Jira (today's experience) — fictional reproduction for case study purposes · all data is sample data
+          Jira · Sample data shown for demonstration
         </div>
       </div>
     `;
