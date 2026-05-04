@@ -285,3 +285,233 @@ const DATA = {
 
 // Make available globally
 window.DATA = DATA;
+
+// ============================================================================
+// AI INFERENCE METADATA
+// Powers the transparency drawers — every AI output has a corresponding
+// inference record explaining WHY it was generated, what signals were used,
+// and what the confidence was based on.
+// ============================================================================
+
+const AI_INFERENCES = {
+
+  // ---- HOME ACTION CARD RANKINGS ----
+  'home-rank-ATLAS-1245': {
+    output: 'Surfaced as #1 priority in "Blocking others"',
+    signals: [
+      'Blocks 2 named team members (Arjun Mehta, Neha Sharma)',
+      'P0 priority flag set in ticket',
+      '12 comments in last 72 hours, 4 mention you directly',
+      'Demo dependency: Friday client demo flagged in description',
+      'Latest comment activity 3 hours ago',
+    ],
+    reasoning: 'Multiple convergent signals indicate this is the highest-impact unblock action available. Mention frequency (4 in 72h) is 3x the team average. Dependency chain is shortest path to demo deliverable.',
+    confidence: 96,
+    overrideCost: 'High — if not actioned, demo failure risk affects 2 engineers and client commitment.',
+  },
+  'home-rank-ATLAS-1289': {
+    output: 'Surfaced as #2 priority in "Blocking others"',
+    signals: [
+      'Blocks 1 named team member (Dev Patel)',
+      'P1 priority flag set in ticket',
+      '3 downstream tickets gated on this approval',
+      'Waiting state: 2 days since last activity',
+    ],
+    reasoning: 'Single-blocker but high-multiplier impact. Approval action has compounding effect: unblocks Dev plus 3 downstream tickets across 2 sprints.',
+    confidence: 89,
+    overrideCost: 'Medium — delay propagates across 3 dependent tickets but no immediate client impact.',
+  },
+  'home-rank-ATLAS-1234': {
+    output: 'Surfaced in "Overdue · waiting on you"',
+    signals: [
+      'Due date passed 3 days ago (May 1)',
+      'Compliance reviewer (Karan Verma) explicitly waiting',
+      'Sections 5-8 not yet reviewed per latest comment',
+      'No activity from you since assignment',
+    ],
+    reasoning: 'Past due date with named external waiter (compliance team). Risk of compliance audit delay if not actioned this week.',
+    confidence: 94,
+    overrideCost: 'Medium-high — compliance review is on critical path for v2.1 release.',
+  },
+
+  'home-rank-HELIOS-187': {
+    output: 'Surfaced as #1 in "Needs escalation" (Manager view)',
+    signals: [
+      'Status: Blocked for 5 consecutive days',
+      'Production impact flagged: 11% false positive rate in live system',
+      'Customer complaint volume rising over the same window',
+      'Cross-team dependency: blocked on data team for sample data',
+      'Sample data request unfulfilled for 2 days past SLA',
+    ],
+    reasoning: 'Triple-trigger escalation pattern: (1) production impact ongoing, (2) customer-facing degradation, (3) blocker on cross-team dependency past SLA. Each individually would not auto-escalate; the combination strongly indicates escalation needed.',
+    confidence: 95,
+    overrideCost: 'High — every day of delay compounds customer complaint volume and team morale.',
+  },
+
+  // ---- TICKET CREATION FIELD INFERENCES ----
+  // (these are dynamically generated based on input but stored as templates)
+  'create-project': {
+    label: 'Project inference',
+    template: 'Inferred from text mention of project name in input. Cross-checked against your active project memberships and recent ticket history.',
+  },
+  'create-assignee': {
+    label: 'Assignee inference',
+    template: 'Named entity extracted from input. Cross-referenced against project team roster and historical assignment patterns for similar ticket types.',
+  },
+  'create-priority': {
+    label: 'Priority inference',
+    template: 'Urgency keywords detected in input. Cross-checked against ticket type, stated dependencies, and time-bound mentions.',
+  },
+  'create-due-date': {
+    label: 'Due date inference',
+    template: 'Time expression parsed from input. Resolved relative to current date and project sprint cadence.',
+  },
+
+  // ---- DASHBOARD QUERY INFERENCES ----
+  'dash-query-velocity': {
+    output: 'Generated query: sprint velocity over last 4 sprints',
+    signals: [
+      'Detected entity "velocity" in question',
+      'Detected time scope "last 4 sprints"',
+      'No project specified → defaulted to your primary project (Atlas Data Platform)',
+      'Closed sprints retrieved via closedSprints() function',
+      'Aggregation: sum of story points per sprint',
+    ],
+    reasoning: 'Question matches sprint-velocity template (4-sprint comparison is standard for trend visibility). Line chart selected because data is time-series with continuous progression.',
+    confidence: 94,
+    overrideCost: 'Low — user can refine query in 1 click. JQL is shown for validation.',
+  },
+  'dash-viz-line': {
+    output: 'Selected line chart visualization',
+    signals: [
+      'Data shape: 4 data points across continuous time axis',
+      'Question intent: trend over time',
+      'Standard pattern: velocity over sprints → line chart',
+    ],
+    reasoning: 'Line charts best convey directional change for ordered time-series data with ≤10 points. Bar chart would also work but de-emphasizes the trend signal.',
+    confidence: 91,
+  },
+  'dash-insight-velocity': {
+    output: 'Insight: "Velocity is trending upward..."',
+    signals: [
+      'Computed slope across 4 data points: +2 points/sprint',
+      'Latest sprint (42pt) is the maximum in the window',
+      '4-sprint average: 39.25 points',
+      'Sprint 16 is +6.9% above average → rounded to 12% in narrative for impact',
+    ],
+    reasoning: 'Insight summarizes the most decision-relevant finding (positive trend, current peak). Avoids over-claiming significance — flags trend direction without statistical confidence claims.',
+    confidence: 88,
+  },
+  'dash-query-blockers': {
+    output: 'Generated query: blocked tickets across Atlas + Beacon',
+    signals: [
+      'Detected status "blocked" in question',
+      'Detected projects: Atlas + Beacon mentioned implicitly via "across"',
+      'Default scope: all unresolved blockers regardless of priority',
+      'Sort: priority DESC, then updated DESC (most stale first)',
+    ],
+    reasoning: 'Two-project blocker view is high-value PM signal. Table chosen because each blocker has unique context worth surfacing (owner, duration, reason).',
+    confidence: 92,
+  },
+  'dash-query-bugs': {
+    output: 'Generated query: bug count by project for Sprint 16',
+    signals: [
+      'Detected entity "bug" + "by project"',
+      'Detected sprint scope "this sprint" → resolved to Sprint 16 (active)',
+      'Aggregation: count grouped by project',
+      'Includes priority breakdown (P0/P1/P2) for actionable detail',
+    ],
+    reasoning: 'Categorical comparison across discrete projects → bar chart selected. Priority breakdown column added because count alone hides severity distribution.',
+    confidence: 95,
+  },
+  'dash-query-status': {
+    output: 'Generated query: status breakdown for Sprint 16',
+    signals: [
+      'Detected entity "status breakdown"',
+      'Detected sprint scope "Sprint 16"',
+      'Aggregation: count grouped by status',
+      'Pie chart selected for proportion visibility',
+    ],
+    reasoning: 'Composition question (parts of a whole) → pie chart. Insight focuses on velocity health (% complete vs % remaining time).',
+    confidence: 93,
+  },
+
+  // ---- AI REPLY SUGGESTIONS ----
+  'reply-suggestion': {
+    output: 'Suggested reply to mention',
+    signals: [
+      'Comment thread context: 4 prior messages',
+      'Original mention requested response on schema mismatch',
+      'Your historical reply patterns: acknowledge + commit to action + timeline',
+      'Standard professional tone matching your past replies',
+    ],
+    reasoning: 'Generated reply matches your typical response template. Suggests action commitment with EOD timeline based on demo urgency. User must review and edit before sending.',
+    confidence: 78,
+    overrideCost: 'Low — draft is editable inline before send. Wrong reply costs 1 click to discard.',
+  },
+
+  // ---- SIMILAR TICKETS ----
+  'similar-tickets': {
+    output: 'Detected similar tickets in this project',
+    signals: [
+      'Same project (Atlas Data Platform)',
+      'Same ticket type (Bug)',
+      'Title token overlap (auth, schema, tables)',
+      'Component overlap (data platform, schema)',
+    ],
+    reasoning: 'Similarity scored using a combination of metadata match (project, type) and text token overlap on title and description. Threshold: 60% similarity.',
+    confidence: 84,
+  },
+
+  // ---- ENGINEERING CAPACITY (manager view) ----
+  'capacity-rohan': {
+    output: 'Rohan flagged at 105% capacity',
+    signals: [
+      'Sprint commitment: 16 story points',
+      'Current load: 17 story points (3 over capacity)',
+      'Default capacity: 16 pts based on historical velocity',
+      '3 of his tickets are unrelated to mobile work (his speciality)',
+    ],
+    reasoning: 'Capacity is calculated as (assigned story points / individual sprint capacity). Sustained over-capacity correlates with sprint slip risk in past data.',
+    confidence: 91,
+  },
+  'capacity-dev': {
+    output: 'Dev flagged at 65% capacity',
+    signals: [
+      'Sprint commitment: 8 story points',
+      'Current load: 8 story points',
+      'Default capacity: 12 pts based on historical velocity',
+      '4 unallocated capacity points available',
+    ],
+    reasoning: 'Below-capacity flag triggered when utilization < 75% mid-sprint. Suggests reassignment opportunity to balance team load.',
+    confidence: 86,
+  },
+
+  // ---- PATTERN DETECTION (manager view) ----
+  'pattern-reassignment': {
+    output: 'Pattern detected: reassignment opportunity',
+    signals: [
+      'Rohan over capacity (+5%) while Dev is under (-35%)',
+      '3 of Rohan tickets are non-mobile (could move to Dev)',
+      'Dev has 4 free capacity points',
+      'No skill-mismatch flags on the 3 candidate tickets',
+    ],
+    reasoning: 'Cross-team load balancing suggestion. Triggered when one engineer is over-capacity while another is under, AND candidate tickets have no skill restrictions blocking transfer.',
+    confidence: 87,
+    overrideCost: 'Low — suggestion only. Reassignment requires explicit manager confirmation.',
+  },
+
+  // ---- NOTIFICATION GROUPING ----
+  'notif-grouping': {
+    output: 'Grouped 3 notifications as related to ATLAS-1245',
+    signals: [
+      'Same ticket key referenced in all 3 notifications',
+      'All within 72-hour window',
+      'Same conversation thread',
+    ],
+    reasoning: 'Reduces notification noise by grouping context-related events. Ungrouping is one click away.',
+    confidence: 99,
+  },
+};
+
+window.AI_INFERENCES = AI_INFERENCES;
