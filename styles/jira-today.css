@@ -3,7 +3,7 @@
    Color tokens from Atlassian Design System
    ============================================================================ */
 
-.jt {
+:root {
   /* Core Atlassian colors */
   --jt-blue: #0052CC;
   --jt-blue-dark: #0747A6;
