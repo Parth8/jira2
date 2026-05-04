@@ -2,7 +2,7 @@
    JIRA 2.0 — Same Atlassian palette, AI-native interactions, elevated polish
    ============================================================================ */
 
-.j2 {
+:root {
   --j2-blue: #0052CC;
   --j2-blue-dark: #0747A6;
   --j2-blue-light: #4C9AFF;
@@ -315,12 +315,16 @@
 .j2-ai-modal {
   background: white; border-radius: 8px;
   box-shadow: 0 16px 64px rgba(9, 30, 66, 0.2);
-  width: 100%; max-width: 720px; max-height: calc(100vh - 100px);
+  width: 100%; max-width: 720px;
+  max-height: calc(100vh - 80px);
+  height: auto;
   overflow: hidden; display: flex; flex-direction: column; animation: slideUp 0.2s;
+  min-height: 0;
 }
 .j2-ai-modal .header {
   padding: 16px 20px; border-bottom: 1px solid var(--j2-border);
   display: flex; align-items: center; gap: 12px;
+  flex-shrink: 0;
 }
 .j2-ai-modal .header .icon {
   width: 32px; height: 32px; background: var(--j2-ai-gradient);
@@ -339,10 +343,15 @@
   border-radius: 4px; color: var(--j2-text-3); font-size: 18px;
 }
 .j2-ai-modal .close-btn:hover { background: var(--j2-hover); color: var(--j2-text); }
-.j2-ai-modal .body { padding: 20px; overflow-y: auto; flex: 1; }
+.j2-ai-modal .body {
+  padding: 20px; overflow-y: auto; flex: 1 1 auto;
+  min-height: 0;
+}
 .j2-ai-modal .footer {
   padding: 12px 20px; border-top: 1px solid var(--j2-border);
   background: var(--j2-bg); display: flex; align-items: center; gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
 .j2-ai-input {
