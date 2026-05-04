@@ -1822,11 +1822,47 @@ const Jira20 = {
   },
 
   highlightJQL(jql) {
-    return jql
-      .replace(/\b(project|sprint|status|type|priority|reporter|created|resolution|assignee)\b/g, '<span style="color:#79C0FF">$1</span>')
-      .replace(/\b(AND|OR|NOT|IN|ORDER BY|GROUP BY|DESC|ASC|LIMIT)\b/g, '<span style="color:#FF7B72">$1</span>')
-      .replace(/("[^"]+")/g, '<span style="color:#A5D6FF">$1</span>')
-      .replace(/(currentUser\(\)|closedSprints\(\))/g, '<span style="color:#D2A8FF">$1</span>');
+    // Token-based highlighter — escapes raw text, then wraps tokens in spans
+    // Avoids the regex-on-already-replaced-HTML bug
+    const tokens = [
+      { pattern: /\b(AND|OR|NOT|IN|ORDER BY|GROUP BY|DESC|ASC|LIMIT)\b/g, color: '#FF7B72' },
+      { pattern: /\b(project|sprint|status|type|priority|reporter|created|resolution|assignee)\b/g, color: '#79C0FF' },
+      { pattern: /(currentUser\(\)|closedSprints\(\))/g, color: '#D2A8FF' },
+      { pattern: /("[^"]+")/g, color: '#A5D6FF' },
+    ];
+
+    // Find all matches with positions
+    const matches = [];
+    tokens.forEach(({ pattern, color }) => {
+      let m;
+      const re = new RegExp(pattern.source, pattern.flags);
+      while ((m = re.exec(jql)) !== null) {
+        matches.push({ start: m.index, end: m.index + m[0].length, text: m[0], color });
+      }
+    });
+
+    // Sort by start position; resolve overlaps by keeping the earlier match
+    matches.sort((a, b) => a.start - b.start);
+    const filtered = [];
+    let lastEnd = -1;
+    for (const m of matches) {
+      if (m.start >= lastEnd) {
+        filtered.push(m);
+        lastEnd = m.end;
+      }
+    }
+
+    // Build output: text outside matches stays plain, matches get wrapped
+    let result = '';
+    let cursor = 0;
+    const escape = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    for (const m of filtered) {
+      result += escape(jql.slice(cursor, m.start));
+      result += `<span style="color:${m.color}">${escape(m.text)}</span>`;
+      cursor = m.end;
+    }
+    result += escape(jql.slice(cursor));
+    return result;
   },
 };
 
