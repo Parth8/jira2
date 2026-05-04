@@ -22,11 +22,12 @@ const Jira20 = {
           </main>
         </div>
         <div class="j2-footer">
-          Jira 2.0 — interactive prototype · From configurability to cognitive efficiency
+          Jira 2.0 · AI-native project management
           <div class="principles">
             <span>Action-first home</span>
             <span>Conversational creation</span>
-            <span>NL dashboards</span>
+            <span>Natural language dashboards</span>
+            <span>Full AI transparency</span>
           </div>
         </div>
       </div>
@@ -205,7 +206,9 @@ const Jira20 = {
             </div>
             <div class="title">Auth Tables and Clearance tables — schema mismatch blocking demo</div>
             <div class="context">Arjun Mehta and Neha Sharma are blocked on review of platform changes. Blocks Friday client demo.</div>
-            <div class="why">${ICONS.sparkle} blocks 2 people · demo Friday · 4 comments mention you</div>
+            <div style="margin-top:8px">
+              ${aiInline('home-rank-ATLAS-1245', `${ICONS.sparkle} blocks 2 people · demo Friday · 4 comments mention you`)}
+            </div>
           </div>
           <div class="actions" onclick="event.stopPropagation()">
             <button class="quick-action" onclick="Jira20.quickReply('ATLAS-1245')">Reply</button>
@@ -223,7 +226,9 @@ const Jira20 = {
             </div>
             <div class="title">Approve YAML config schema for tenant onboarding</div>
             <div class="context">Dev Patel waiting on approval to merge the platformization changes. Blocks 3 downstream tickets.</div>
-            <div class="why">${ICONS.sparkle} blocks 1 person · 3 dependent tickets · waiting 2 days</div>
+            <div style="margin-top:8px">
+              ${aiInline('home-rank-ATLAS-1289', `${ICONS.sparkle} blocks 1 person · 3 dependent tickets · waiting 2 days`)}
+            </div>
           </div>
           <div class="actions" onclick="event.stopPropagation()">
             <button class="quick-action" onclick="Jira20.quickApprove('ATLAS-1289')">Approve</button>
@@ -250,7 +255,9 @@ const Jira20 = {
               <span style="font-size:11px;background:var(--j2-red-bg);color:var(--j2-red);padding:1px 6px;border-radius:3px;font-weight:600">Overdue 3d</span>
             </div>
             <div class="title">Review platform contract v2.1 with compliance team</div>
-            <div class="why">${ICONS.sparkle} due May 1 · Karan Verma waiting for sign-off</div>
+            <div style="margin-top:8px">
+              ${aiInline('home-rank-ATLAS-1234', `${ICONS.sparkle} due May 1 · Karan Verma waiting for sign-off`)}
+            </div>
           </div>
         </div>
       </div>
@@ -351,7 +358,9 @@ const Jira20 = {
               <span style="color:var(--j2-text-3)">PR draft open</span> ·
               <span style="color:var(--j2-text-3)">CI passing</span>
             </div>
-            <div class="why">${ICONS.sparkle} linked branch: feature/auth-schema-fix · last commit 1h ago</div>
+            <div style="margin-top:8px">
+              ${aiInline('home-rank-ATLAS-1245', `${ICONS.sparkle} linked branch: feature/auth-schema-fix · last commit 1h ago`)}
+            </div>
           </div>
         </div>
 
@@ -399,7 +408,9 @@ const Jira20 = {
             </div>
             <div class="title">feat: Add multi-tenant config validation</div>
             <div class="context">Dev Patel · 3 files changed, +247/-89 lines · CI passing</div>
-            <div class="why">${ICONS.sparkle} requested by Dev Patel · waiting 6 hours</div>
+            <div style="margin-top:8px">
+              ${aiInline('home-rank-ATLAS-1289', `${ICONS.sparkle} requested by Dev Patel · waiting 6 hours`)}
+            </div>
           </div>
         </div>
       </div>
@@ -465,7 +476,9 @@ const Jira20 = {
             </div>
             <div class="title">False positive rate spike in velocity rules</div>
             <div class="context">Owner: Neha Sharma · Blocked on data team for 2 days · production impact</div>
-            <div class="why">${ICONS.sparkle} 11% FP rate in production · customer complaints rising · cross-team dependency unresolved</div>
+            <div style="margin-top:8px">
+              ${aiInline('home-rank-HELIOS-187', `${ICONS.sparkle} 11% FP rate in production · customer complaints rising · cross-team dependency unresolved`)}
+            </div>
           </div>
           <div class="actions" onclick="event.stopPropagation()">
             <button class="quick-action" onclick="toast('Escalation drafted: notifying VP Eng + data team lead')">Escalate</button>
@@ -513,7 +526,10 @@ const Jira20 = {
           <div class="text">
             Rohan Kapoor is at 105% capacity while Dev Patel is at 65%. Three of Rohan's tickets are unrelated to mobile work and could be reassigned to Dev for better load balancing.
           </div>
-          <div class="actions">
+          <div style="margin-top:8px">
+            ${aiInline('pattern-reassignment', `${ICONS.sparkle} Why this pattern was flagged`)}
+          </div>
+          <div class="actions" style="margin-top:8px">
             <a href="javascript:toast('Suggested reassignments saved as draft')">Show suggested reassignments →</a>
           </div>
         </div>
@@ -523,14 +539,20 @@ const Jira20 = {
 
   renderEngineerCapacity(userId, percent, status, type) {
     const u = getUser(userId);
+    // Map user to their inference record (only some have detailed records)
+    const inferenceMap = { rohan: 'capacity-rohan', dev: 'capacity-dev' };
+    const inferenceId = inferenceMap[userId];
     return `
       <div class="j2-action-card" onclick="toast('Opening ${u.name} workload view...')">
         <div style="flex-shrink:0">${avatar(userId, 36)}</div>
         <div class="body">
-          <div style="font-weight:500;font-size:14px;margin-bottom:4px">${u.name}</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <div style="font-weight:500;font-size:14px">${u.name}</div>
+            ${inferenceId ? `<div onclick="event.stopPropagation()">${aiInline(inferenceId, `${ICONS.sparkle} How calculated`)}</div>` : ''}
+          </div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
             <div style="flex:1;height:6px;background:var(--j2-border);border-radius:3px;overflow:hidden">
-              <div style="height:100%;width:${Math.min(percent,100)}%;background:${type === 'warning' ? 'var(--j2-yellow)' : type === 'success' ? 'var(--j2-green)' : 'var(--j2-blue)'};"></div>
+              <div style="height:100%;width:${Math.min(percent,100)}%;background:${type === 'warning' ? '#E5B860' : type === 'success' ? '#6FBF94' : '#5A87CC'};"></div>
             </div>
             <span style="font-size:12px;font-weight:600;color:var(--j2-text-2);min-width:40px;text-align:right">${percent}%</span>
           </div>
@@ -678,10 +700,14 @@ const Jira20 = {
 
           ${similar.length > 0 ? `
             <div class="j2-suggestions">
-              <div class="header">
-                ${ICONS.sparkle}
-                Similar tickets · AI detected
+              <div class="header" style="display:flex;align-items:center;justify-content:space-between">
+                <span style="display:flex;align-items:center;gap:6px">
+                  ${ICONS.sparkle}
+                  Similar tickets · AI detected
+                </span>
+                ${aiInline('similar-tickets', `${ICONS.sparkle} How matched`)}
               </div>
+              ${aiDrawer('similar-tickets')}
               ${similar.map(s => `
                 <div class="item" onclick="navigateTo('ticket', { ticketKey: '${s.key}' })">
                   <strong>${s.key}</strong> · ${s.title}
@@ -852,8 +878,14 @@ const Jira20 = {
         <span>Notifications</span>
         <button onclick="document.querySelectorAll('.j2-notif-item.unread').forEach(el => el.classList.remove('unread'));toast('All marked as read')" style="background:none;border:none;color:var(--j2-blue);font-size:12px;cursor:pointer">Mark all read</button>
       </div>
-      <div style="padding:8px 16px;background:var(--j2-purple-bg);border-bottom:1px solid var(--j2-border);font-size:12px;color:var(--j2-purple);display:flex;align-items:center;gap:6px">
-        ${ICONS.sparkle} <span><strong>3 of 5</strong> notifications grouped by AI as related to ATLAS-1245</span>
+      <div style="padding:10px 16px;background:#F4F1FA;border-bottom:1px solid var(--j2-border)">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+          <span style="font-size:12px;color:#5E4DB2;display:flex;align-items:center;gap:6px">
+            ${ICONS.sparkle} <span><strong>3 of 5</strong> notifications grouped as related to ATLAS-1245</span>
+          </span>
+          ${aiInline('notif-grouping', `${ICONS.sparkle} Why grouped`)}
+        </div>
+        ${aiDrawer('notif-grouping')}
       </div>
       ${DATA.notifications.map(n => `
         <div class="j2-notif-item ${!n.read && !STATE.sessionEdits.readNotifications.has(n.id) ? 'unread' : ''}" onclick="Jira20.openNotifTicket(${n.id}, '${n.ticketKey}')">
@@ -944,7 +976,7 @@ const Jira20 = {
           </div>
           <div id="j2-create-output"></div>
         </div>
-        <div class="footer">
+        <div class="footer" id="j2-create-footer">
           <span style="font-size:12px;color:var(--j2-text-3);display:flex;align-items:center;gap:6px;margin-right:auto">
             <span class="j2-dot j2-dot-green"></span>
             Assisted structuring · You confirm before anything is filed
@@ -1099,6 +1131,106 @@ const Jira20 = {
       .filter(t => t.project === projectKey && t.type === type)
       .slice(0, 2);
 
+    // ---------- BUILD DYNAMIC INFERENCE RECORDS ----------
+    // For each draft field, register an inference record so the AI tag's drawer
+    // can show signals + reasoning + confidence specific to THIS draft.
+    const projectName = DATA.projects[projectKey]?.name || 'Atlas Data Platform';
+    const projectMatched = !projectConf.includes('ambiguous');
+    AI_INFERENCES['draft-project-current'] = {
+      output: 'Project: ' + projectName,
+      signals: projectMatched ? [
+        `Project name matched in input text: "${projectKey.toLowerCase()}"`,
+        `Cross-checked against your active project memberships`,
+        `${projectName} is in your top-3 most-active projects this quarter`,
+      ] : [
+        'No explicit project keyword detected in input',
+        'No prior context (related ticket links, branch references)',
+        'Defaulted to most-active project, but flagged for confirmation',
+      ],
+      reasoning: projectMatched
+        ? 'Direct lexical match against project name. Combined with active membership check, this is high-confidence inference.'
+        : 'No direct signals available — defaulting is risky. Flagged for user to confirm rather than guessing silently.',
+      confidence: projectMatched ? (projectKey === 'ATLAS' ? 94 : 89) : 35,
+      overrideCost: projectMatched ? 'Low — wrong project causes ticket to land in wrong board.' : 'High — wrong default could route urgent ticket to inactive project.',
+    };
+
+    const assigneeMatched = !!assigneeId;
+    const assigneeName = assigneeId ? getUser(assigneeId).name : 'Unassigned';
+    AI_INFERENCES['draft-assignee-current'] = {
+      output: 'Assignee: ' + assigneeName,
+      signals: assigneeMatched ? [
+        `Named entity recognized in input: "${assigneeName.split(' ')[0]}"`,
+        `${assigneeName} is on the ${projectName} team roster`,
+        `Historical pattern: ${assigneeName} has been assigned ${type === 'bug' ? '8 of last 10 bugs' : '6 of last 10 tasks'} in this project`,
+      ] : [
+        'No name recognized in input',
+        'Could infer from ticket type + project conventions, but confidence too low',
+        'Left unassigned for explicit user choice',
+      ],
+      reasoning: assigneeMatched
+        ? 'Direct name extraction with high confidence. Cross-validated against team membership and assignment history.'
+        : 'Better to leave unassigned than guess wrong. Wrong assignee creates notification noise and accountability confusion.',
+      confidence: assigneeMatched ? 92 : 0,
+      overrideCost: assigneeMatched ? 'Low — incorrect assignee creates one extra reassignment step.' : '—',
+    };
+
+    AI_INFERENCES['draft-priority-current'] = {
+      output: `Priority: ${priority} · ${DATA.priorities[priority].name}`,
+      signals: priority === 'P0' ? [
+        'Urgency keyword detected: "critical" or "urgent"',
+        'No explicit P-level mentioned in input',
+        'Combined with ticket type (bug) → P0 default',
+      ] : priority === 'P1' ? [
+        'Blocking language detected: "blocking" or "blocks"',
+        'Time-bound mention detected (e.g., "Friday", "demo")',
+        'Standard pattern for client-facing blockers → P1',
+      ] : [
+        'No urgency or blocking signals detected in input',
+        'No explicit priority mentioned',
+        'Defaulted to P2 Medium — review if higher priority needed',
+      ],
+      reasoning: priority === 'P0'
+        ? 'Critical/urgent keywords trigger P0 with high confidence when accompanied by bug type.'
+        : priority === 'P1'
+          ? 'Blocking language combined with time-bound mention suggests high but not critical.'
+          : 'Default behavior when no signals present. User should review.',
+      confidence: priority === 'P0' ? 88 : priority === 'P1' ? 84 : 60,
+      overrideCost: 'Low — priority is editable in one click. Wrong priority affects only sort order on board.',
+    };
+
+    AI_INFERENCES['draft-due-current'] = {
+      output: 'Due: ' + dueDate,
+      signals: dueDate !== 'Not set' ? [
+        `Time expression detected in input`,
+        `Resolved relative to today (May 3, 2026) and project sprint cadence`,
+        `Aligns with current sprint (Sprint 16) end date`,
+      ] : [
+        'No time expression detected',
+        'No urgency keyword that would imply a specific deadline',
+        'Left unset — user can set explicitly',
+      ],
+      reasoning: dueDate !== 'Not set'
+        ? 'Natural language time expression parsed against current calendar. Cross-checked with sprint boundaries.'
+        : 'No data to infer. Better unset than wrong date that misleads downstream prioritization.',
+      confidence: dueDate !== 'Not set' ? 86 : 0,
+      overrideCost: 'Low — easily editable. Wrong date affects only the overdue indicator.',
+    };
+
+    if (similar.length > 0) {
+      AI_INFERENCES['draft-similar-current'] = {
+        output: `Found ${similar.length} similar ticket${similar.length > 1 ? 's' : ''}`,
+        signals: [
+          `Same project: ${projectName}`,
+          `Same ticket type: ${type}`,
+          'Title token overlap analyzed (auth, schema, data terms)',
+          'Similarity threshold: 60% match score',
+        ],
+        reasoning: 'Surfaced to help user check if this is a duplicate or related work. Reduces duplicate ticket creation rate.',
+        confidence: 84,
+        overrideCost: 'Very low — informational only. User can dismiss if irrelevant.',
+      };
+    }
+
     output.innerHTML = `
       <div class="j2-draft-card">
         <div class="draft-header">
@@ -1114,13 +1246,14 @@ const Jira20 = {
               <option value="story" ${type==='story'?'selected':''}>📖 Story</option>
               <option value="epic" ${type==='epic'?'selected':''}>⭐ Epic</option>
             </select>
-            <span class="confidence-tag">inferred</span>
+            <span class="ai-tag">inferred</span>
           </div>
+          <div style="grid-column: 2 / -1; margin-top:-8px; margin-bottom:12px"></div>
 
           <div class="j2-draft-field">
             <span class="label">Title</span>
             <input type="text" class="value-input" id="j2-d-title" value="${title.replace(/"/g, '&quot;')}" />
-            <span class="confidence-tag">extracted</span>
+            <span class="ai-tag">extracted</span>
           </div>
 
           <div class="j2-draft-field">
@@ -1128,7 +1261,7 @@ const Jira20 = {
             <select class="value-input" id="j2-d-project">
               ${Object.values(DATA.projects).map(p => `<option value="${p.key}" ${p.key===projectKey?'selected':''}>${p.icon} ${p.name}</option>`).join('')}
             </select>
-            <span class="confidence-tag ${projectConf.includes('ambiguous')?'warning':''}">${projectConf}</span>
+            ${aiInline('draft-project-current', projectConf, { warning: !projectMatched })}
           </div>
 
           <div class="j2-draft-field">
@@ -1137,7 +1270,7 @@ const Jira20 = {
               <option value="">Unassigned</option>
               ${Object.values(DATA.users).map(u => `<option value="${u.id}" ${u.id===assigneeId?'selected':''}>${u.name}</option>`).join('')}
             </select>
-            <span class="confidence-tag ${assigneeConf.includes('no assignee')?'warning':''}">${assigneeConf}</span>
+            ${aiInline('draft-assignee-current', assigneeConf, { warning: !assigneeMatched })}
           </div>
 
           <div class="j2-draft-field">
@@ -1148,13 +1281,13 @@ const Jira20 = {
               <option value="P2" ${priority==='P2'?'selected':''}>P2 · Medium</option>
               <option value="P3" ${priority==='P3'?'selected':''}>P3 · Low</option>
             </select>
-            <span class="confidence-tag">${priorityConf}</span>
+            ${aiInline('draft-priority-current', priorityConf)}
           </div>
 
           <div class="j2-draft-field">
             <span class="label">Due date</span>
             <input type="text" class="value-input" id="j2-d-due" value="${dueDate}" />
-            <span class="confidence-tag ${dueConf.includes('no date')?'warning':''}">${dueConf}</span>
+            ${aiInline('draft-due-current', dueConf, { warning: dueConf.includes('no date') })}
           </div>
 
           ${similar.length > 0 ? `
@@ -1163,7 +1296,7 @@ const Jira20 = {
               <div style="font-size:13px;color:var(--j2-text-2)">
                 ${similar.map(s => `<a href="javascript:void(0)" style="display:block;padding:4px 0">${s.key} · ${s.title.substring(0, 60)}${s.title.length > 60 ? '...' : ''}</a>`).join('')}
               </div>
-              <span class="confidence-tag">${similar.length} found</span>
+              ${aiInline('draft-similar-current', `${similar.length} found`)}
             </div>
           ` : ''}
 
@@ -1176,12 +1309,6 @@ const Jira20 = {
             <span class="label">Overall confidence</span>
             <div class="bar"><div class="fill ${confidence < 70 ? 'low' : ''}" style="width:${confidence}%"></div></div>
             <span class="value">${confLabel} · ${confidence}%</span>
-          </div>
-
-          <div style="margin-top:16px;display:flex;justify-content:flex-end;gap:8px">
-            <button class="j2-btn j2-btn-subtle" onclick="document.getElementById('j2-create-output').innerHTML=''">Discard</button>
-            <button class="j2-btn" onclick="toast('All fields above are editable inline')">Edit details</button>
-            <button class="j2-btn j2-btn-primary" onclick="Jira20.confirmDraft()">Create ticket</button>
           </div>
         </div>
       </div>
@@ -1196,6 +1323,31 @@ const Jira20 = {
         </div>
       </div>
     `;
+
+    // Update the sticky modal footer to show action buttons
+    const footer = document.getElementById('j2-create-footer');
+    if (footer) {
+      footer.innerHTML = `
+        <span style="font-size:12px;color:var(--j2-text-3);display:flex;align-items:center;gap:6px;margin-right:auto">
+          <span class="j2-dot j2-dot-green"></span>
+          Review the draft · you confirm before it's filed
+        </span>
+        <button class="j2-btn j2-btn-subtle" onclick="document.getElementById('j2-create-output').innerHTML='';Jira20.resetCreateFooter()">Discard</button>
+        <button class="j2-btn j2-btn-primary" onclick="Jira20.confirmDraft()">Create ticket</button>
+      `;
+    }
+  },
+
+  resetCreateFooter() {
+    const footer = document.getElementById('j2-create-footer');
+    if (footer) {
+      footer.innerHTML = `
+        <span style="font-size:12px;color:var(--j2-text-3);display:flex;align-items:center;gap:6px;margin-right:auto">
+          <span class="j2-dot j2-dot-green"></span>
+          Assisted structuring · You confirm before anything is filed
+        </span>
+      `;
+    }
   },
 
   disambiguate(choice) {
@@ -1496,15 +1648,29 @@ const Jira20 = {
 
   renderQueryResult(result) {
     this._activeVizType = result.suggestedViz;
+
+    // Map intent -> inference IDs
+    const intentToQueryId = {
+      sprint_velocity: 'dash-query-velocity',
+      blockers: 'dash-query-blockers',
+      bugs_by_project: 'dash-query-bugs',
+      status_breakdown: 'dash-query-status',
+    };
+    const queryInferenceId = intentToQueryId[result.intent];
+    const vizInferenceId = result.suggestedViz === 'line' ? 'dash-viz-line' : null;
+    const insightInferenceId = result.intent === 'sprint_velocity' ? 'dash-insight-velocity' : null;
+
     return `
       <div class="j2-jql-card">
         <div class="header">
           <span class="label">JQL · auto-generated · validate before saving</span>
           <div class="actions">
+            ${queryInferenceId ? aiInline(queryInferenceId, `${ICONS.sparkle} How this query was built`) : ''}
             <button onclick="toast('JQL editor opened')">Edit JQL</button>
             <button onclick="toast('Copied to clipboard')">Copy</button>
           </div>
         </div>
+        ${queryInferenceId ? `<div style="padding:0 16px 0 16px">${aiDrawer(queryInferenceId)}</div>` : ''}
         <div class="content">${this.highlightJQL(result.jql)}</div>
       </div>
 
@@ -1519,7 +1685,11 @@ const Jira20 = {
         </div>
         <div style="background:white;border:1px solid var(--j2-border);padding:10px 12px;border-radius:6px">
           <div style="font-size:11px;color:var(--j2-text-3);font-weight:600;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:2px">Suggested viz</div>
-          <div style="font-size:13px;color:var(--j2-blue);font-weight:500">${this.vizName(result.suggestedViz)} · AI selected</div>
+          <div style="font-size:13px;color:var(--j2-blue);font-weight:500;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <span>${this.vizName(result.suggestedViz)}</span>
+            ${vizInferenceId ? aiInline(vizInferenceId, 'AI selected') : '<span class="ai-tag">AI selected</span>'}
+          </div>
+          ${vizInferenceId ? aiDrawer(vizInferenceId) : ''}
         </div>
       </div>
 
@@ -1541,8 +1711,12 @@ const Jira20 = {
       <div class="j2-insight">
         <div class="icon">${ICONS.sparkle}</div>
         <div class="body">
-          <h4>AI Insight</h4>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+            <h4>AI Insight</h4>
+            ${insightInferenceId ? aiInline(insightInferenceId, `${ICONS.sparkle} How this insight was derived`) : ''}
+          </div>
           <p>${result.insight}</p>
+          ${insightInferenceId ? aiDrawer(insightInferenceId) : ''}
         </div>
       </div>
 
