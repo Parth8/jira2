@@ -3,14 +3,22 @@
 // ============================================================================
 
 function render() {
-  // Render the mode toggle bar (always present)
   renderModeToggle();
 
-  // Render the active mode
   if (STATE.mode === 'today') {
     JiraToday.render(STATE.view);
   } else {
     Jira20.render(STATE.view);
+  }
+
+  // Apply content fade animation
+  const root = document.getElementById('app-root');
+  if (root && root.firstElementChild) {
+    root.firstElementChild.classList.add('content-fade');
+    // Remove after animation so re-renders re-trigger
+    setTimeout(() => {
+      if (root.firstElementChild) root.firstElementChild.classList.remove('content-fade');
+    }, 280);
   }
 }
 
@@ -22,29 +30,33 @@ function renderModeToggle() {
     bar.className = 'mode-toggle-bar';
     document.body.insertBefore(bar, document.body.firstChild);
   }
+  const isOn = STATE.mode === '2.0';
   bar.innerHTML = `
     <div class="brand">
       <div class="brand-mark">J</div>
-      <span>Jira 2.0 Case Study Prototype</span>
+      <span class="brand-name">Jira</span>
     </div>
-    <div class="mode-toggle">
-      <button class="${STATE.mode === 'today' ? 'active' : ''}" onclick="setMode('today')">Jira Today</button>
-      <button class="${STATE.mode === '2.0' ? 'active' : ''}" onclick="setMode('2.0')">Jira 2.0</button>
+    <div class="mode-slider">
+      <span class="label ${!isOn ? 'active' : ''}">Today</span>
+      <div class="mode-slider-track ${isOn ? 'on' : ''}" onclick="toggleMode()">
+        <div class="mode-slider-thumb"></div>
+      </div>
+      <span class="label ${isOn ? 'active' : ''}">2.0</span>
     </div>
-    <span class="description">${STATE.mode === 'today' ? 'The current friction-heavy experience' : 'AI-native reimagining'}</span>
-    <span class="by">by Parth Aggarwal · for Qure.ai Senior PM case study</span>
   `;
+}
+
+function toggleMode() {
+  setMode(STATE.mode === 'today' ? '2.0' : 'today');
 }
 
 // ---------- INIT ----------
 function init() {
-  // Load saved mode
   const savedMode = localStorage.getItem('jira-mode');
   if (savedMode === '2.0' || savedMode === 'today') {
     STATE.mode = savedMode;
   }
 
-  // Set up app container
   let appRoot = document.getElementById('app-root');
   if (!appRoot) {
     appRoot = document.createElement('div');
@@ -58,24 +70,39 @@ function init() {
 
 document.addEventListener('DOMContentLoaded', init);
 
+// ---------- AI DRAWER TOGGLE (shared utility) ----------
+function toggleAIDrawer(id) {
+  const drawer = document.getElementById('ai-drawer-' + id);
+  const tag = document.getElementById('ai-tag-' + id);
+  if (!drawer) return;
+  drawer.classList.toggle('expanded');
+  if (tag) tag.classList.toggle('expanded');
+}
+
+// Close all open drawers (used when navigating away)
+function closeAllDrawers() {
+  document.querySelectorAll('.ai-drawer.expanded').forEach(d => d.classList.remove('expanded'));
+  document.querySelectorAll('.ai-tag.expanded').forEach(t => t.classList.remove('expanded'));
+}
+
 // ---------- KEYBOARD SHORTCUTS ----------
 document.addEventListener('keydown', (e) => {
-  // Don't intercept when typing in inputs
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
 
   if (e.key === 'c') {
     if (STATE.mode === 'today') JiraToday.openCreateModal();
-  }
-  if (e.key === 'g' && e.shiftKey === false) {
-    // 'g' then 'h' for go home
-    document.addEventListener('keydown', function next(e2) {
-      if (e2.key === 'h') navigateTo('home');
-      document.removeEventListener('keydown', next);
-    }, { once: true });
+    else Jira20.openCreateModal();
   }
   if (e.key === '/') {
     e.preventDefault();
-    const search = document.getElementById('jt-search');
+    const search = document.getElementById('jt-search') || document.getElementById('j2-search');
     if (search) search.focus();
   }
+  if (e.key === 'Escape') {
+    document.querySelector('.modal-backdrop')?.remove();
+  }
 });
+
+window.toggleMode = toggleMode;
+window.toggleAIDrawer = toggleAIDrawer;
+window.closeAllDrawers = closeAllDrawers;
