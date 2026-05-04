@@ -204,3 +204,104 @@ window.toast = toast;
 window.getPriorityIcon = getPriorityIcon;
 window.avatar = avatar;
 window.relativeTime = relativeTime;
+
+// ============================================================================
+// AI TRANSPARENCY DRAWER — shared helper used across all AI surfaces
+// Returns inline HTML for a clickable tag + expandable drawer with full
+// inference reasoning. Used everywhere AI generates a value.
+// ============================================================================
+
+let _aiDrawerCounter = 0;
+
+function aiTag(inferenceId, label, options = {}) {
+  _aiDrawerCounter++;
+  const drawerId = 'ai' + _aiDrawerCounter;
+  const inference = AI_INFERENCES[inferenceId];
+
+  if (!inference) {
+    // Lightweight tag (used when no full inference record exists)
+    return `<span class="ai-tag ${options.warning ? 'warning' : ''}">${label}</span>`;
+  }
+
+  const warningClass = options.warning ? 'warning' : '';
+
+  return `
+    <span class="ai-tag ${warningClass}" id="ai-tag-${drawerId}" onclick="toggleAIDrawer('${drawerId}')">
+      ${label}
+      <span class="chevron">▾</span>
+    </span>
+  `;
+}
+
+function aiDrawer(inferenceId, options = {}) {
+  // Counter is shared with aiTag — they must be called in matching pairs
+  // The drawer ID corresponds to the most recent aiTag() call
+  const drawerId = 'ai' + _aiDrawerCounter;
+  const inference = AI_INFERENCES[inferenceId];
+
+  if (!inference) return '';
+
+  const confidence = inference.confidence || 0;
+  const confLow = confidence < 70;
+
+  return `
+    <div class="ai-drawer" id="ai-drawer-${drawerId}">
+      ${inference.output ? `
+        <div class="ai-drawer-section">
+          <div class="ai-drawer-label">AI Output</div>
+          <div class="ai-drawer-content"><strong>${inference.output}</strong></div>
+        </div>
+      ` : ''}
+
+      ${inference.signals && inference.signals.length ? `
+        <div class="ai-drawer-section">
+          <div class="ai-drawer-label">Signals used</div>
+          <div class="ai-drawer-signals">
+            ${inference.signals.map(s => `<div class="ai-drawer-signal">${s}</div>`).join('')}
+          </div>
+        </div>
+      ` : ''}
+
+      ${inference.reasoning ? `
+        <div class="ai-drawer-section">
+          <div class="ai-drawer-label">Reasoning</div>
+          <div class="ai-drawer-content">${inference.reasoning}</div>
+        </div>
+      ` : ''}
+
+      ${typeof confidence === 'number' && confidence > 0 ? `
+        <div class="ai-drawer-section">
+          <div class="ai-drawer-label">Confidence</div>
+          <div class="ai-drawer-confidence">
+            <div class="ai-drawer-confidence-bar">
+              <div class="ai-drawer-confidence-fill ${confLow ? 'low' : ''}" style="width: ${confidence}%"></div>
+            </div>
+            <div class="ai-drawer-confidence-value">${confidence}%</div>
+          </div>
+        </div>
+      ` : ''}
+
+      ${inference.overrideCost ? `
+        <div class="ai-drawer-section">
+          <div class="ai-drawer-label">Override cost if wrong</div>
+          <div class="ai-drawer-content">${inference.overrideCost}</div>
+        </div>
+      ` : ''}
+
+      <div class="ai-drawer-feedback">
+        <span>Was this helpful?</span>
+        <button onclick="event.stopPropagation();toast('Thanks — feedback noted')">👍 Yes</button>
+        <button onclick="event.stopPropagation();toast('Thanks — we use this to improve the AI signals')">👎 No</button>
+      </div>
+    </div>
+  `;
+}
+
+// Inline AI inference disclosure — one combined element for compact use
+function aiInline(inferenceId, label, options = {}) {
+  return aiTag(inferenceId, label, options) + aiDrawer(inferenceId, options);
+}
+
+window.aiTag = aiTag;
+window.aiDrawer = aiDrawer;
+window.aiInline = aiInline;
